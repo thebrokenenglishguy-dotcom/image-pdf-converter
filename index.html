@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Free image converter: convert JPG, PNG, WebP and HEIC images to PDF or other image formats. Resize and compress images in your browser." />
+  <title>ImageForge — Image & PDF Converter</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">IF</span><span>ImageForge</span></div>
+    <span class="privacy">Files stay in your browser</span>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <p class="eyebrow">FREE IMAGE CONVERTER</p>
+      <h1>Convert images. Change size. Make PDFs.</h1>
+      <p class="subtitle">JPG, PNG, WebP and HEIC — convert, resize and compress without uploading your files.</p>
+    </section>
+
+    <section class="card">
+      <div id="dropZone" class="drop-zone" tabindex="0">
+        <div class="upload-icon">↑</div>
+        <h2>Drop your images here</h2>
+        <p>or choose files from your device</p>
+        <label class="button primary" for="fileInput">Choose images</label>
+        <input id="fileInput" type="file" accept=".jpg,.jpeg,.png,.webp,.heic,.heif,image/jpeg,image/png,image/webp,image/heic,image/heif" multiple hidden />
+        <small>JPG · PNG · WebP · HEIC / HEIF</small>
+      </div>
+
+      <div id="editor" class="editor hidden">
+        <div class="section-title">
+          <div>
+            <h2>Your files</h2>
+            <p id="fileCount">0 files</p>
+          </div>
+          <button id="clearBtn" class="button ghost">Clear</button>
+        </div>
+
+        <div id="fileList" class="file-list"></div>
+
+        <div class="controls">
+          <div class="control-group">
+            <label for="format">Convert to</label>
+            <select id="format">
+              <option value="pdf">PDF</option>
+              <option value="jpeg">JPG</option>
+              <option value="png">PNG</option>
+              <option value="webp">WebP</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label for="pageSize">PDF page size</label>
+            <select id="pageSize">
+              <option value="a4">A4</option>
+              <option value="a5">A5</option>
+              <option value="letter">Letter</option>
+              <option value="original">Original image size</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label for="width">Width (px)</label>
+            <input id="width" type="number" min="1" placeholder="Original" />
+          </div>
+
+          <div class="control-group">
+            <label for="height">Height (px)</label>
+            <input id="height" type="number" min="1" placeholder="Original" />
+          </div>
+
+          <div class="control-group">
+            <label for="quality">Quality: <span id="qualityValue">90%</span></label>
+            <input id="quality" type="range" min="10" max="100" value="90" />
+          </div>
+        </div>
+
+        <div class="options-row">
+          <label class="check"><input id="keepRatio" type="checkbox" checked /> Keep aspect ratio</label>
+          <label class="check"><input id="compress" type="checkbox" checked /> Compress output</label>
+        </div>
+
+        <button id="convertBtn" class="button primary convert">Convert & Download</button>
+        <div id="progress" class="progress hidden"><span></span></div>
+        <p id="status" class="status"></p>
+      </div>
+    </section>
+
+    <section class="features">
+      <article><strong>HEIC support</strong><span>Convert iPhone HEIC/HEIF images.</span></article>
+      <article><strong>Resize & compress</strong><span>Control dimensions and output quality.</span></article>
+      <article><strong>Private by design</strong><span>Processing happens locally in your browser.</span></article>
+    </section>
+  </main>
+
+  <footer>ImageForge · Free browser-based image conversion</footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@3.0.1/dist/jspdf.umd.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
