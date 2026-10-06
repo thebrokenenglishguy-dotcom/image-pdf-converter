@@ -23,11 +23,11 @@
     <section class="card">
       <div id="dropZone" class="drop-zone" tabindex="0">
         <div class="upload-icon">↑</div>
-        <h2>Drop your images here</h2>
-        <p>or choose files from your device</p>
-        <label class="button primary" for="fileInput">Choose images</label>
-        <input id="fileInput" type="file" accept=".jpg,.jpeg,.png,.webp,.heic,.heif,image/jpeg,image/png,image/webp,image/heic,image/heif" multiple hidden />
-        <small>JPG · PNG · WebP · HEIC / HEIF</small>
+        <h2>Drop your files here</h2>
+        <p>or choose images or a PageMaker .P65 file</p>
+        <label class="button primary" for="fileInput">Choose files</label>
+        <input id="fileInput" type="file" accept=".jpg,.jpeg,.png,.webp,.heic,.heif,.p65,image/jpeg,image/png,image/webp,image/heic,image/heif,application/x-pagemaker" multiple hidden />
+        <small>JPG · PNG · WebP · HEIC / HEIF · P65 (experimental)</small>
       </div>
 
       <div id="editor" class="editor hidden">
@@ -90,7 +90,7 @@
     </section>
 
     <section class="features">
-      <article><strong>HEIC support</strong><span>Convert iPhone HEIC/HEIF images.</span></article>
+      <article><strong>P65 support</strong><span>Experimental Adobe PageMaker 6.5 conversion.</span></article>
       <article><strong>Resize & compress</strong><span>Control dimensions and output quality.</span></article>
       <article><strong>Private by design</strong><span>Processing happens locally in your browser.</span></article>
     </section>
