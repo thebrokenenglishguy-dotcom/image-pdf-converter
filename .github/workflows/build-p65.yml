@@ -47,7 +47,8 @@ jobs:
           cd libpagemaker-0.0.4
 
           export PKG_CONFIG_PATH="$GITHUB_WORKSPACE/p65/deps/lib/pkgconfig"
-          export CXXFLAGS="-O3"
+          export CPPFLAGS="-I/usr/include"
+          export CXXFLAGS="-O3 -I/usr/include"
           export LDFLAGS="-L$GITHUB_WORKSPACE/p65/deps/lib"
 
           emconfigure ./configure --disable-shared --enable-static --prefix="$GITHUB_WORKSPACE/p65/deps"
