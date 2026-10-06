@@ -24,7 +24,7 @@ jobs:
       - name: Install Emscripten
         uses: mymindstorm/setup-emsdk@v14
         with:
-          version: latest
+          version: 4.0.15
           actions-cache-folder: emsdk-cache
 
       - name: Build librevenge
@@ -57,7 +57,12 @@ jobs:
           cd "$GITHUB_WORKSPACE"
           mkdir -p p65/dist
 
-          em++ -O3 -s WASM=1 -s MODULARIZE=1 -s EXPORT_ES6=1 -s ENVIRONMENT=web -s ALLOW_MEMORY_GROWTH=1 -s FORCE_FILESYSTEM=1 -s NO_EXIT_RUNTIME=1 -s EXPORTED_RUNTIME_METHODS='["FS","callMain"]' -I"$GITHUB_WORKSPACE/p65/deps/include" src/conv/svg/pmd2svg.cpp -o "$GITHUB_WORKSPACE/p65/dist/pmd2svg.js" $(pkg-config --static --cflags --libs libpagemaker-0.0)
+          em++ -O3 -s WASM=1 -s MODULARIZE=1 -s EXPORT_ES6=1 -s ENVIRONMENT=web -s ALLOW_MEMORY_GROWTH=1 -s FORCE_FILESYSTEM=1 -s NO_EXIT_RUNTIME=1 -s EXPORTED_RUNTIME_METHODS='["FS","callMain"]' -I"$GITHUB_WORKSPACE/p65/deps/include" libpagemaker-0.0.4/src/conv/svg/pmd2svg.cpp -o "$GITHUB_WORKSPACE/p65/dist/pmd2svg.js" $(pkg-config --static --cflags --libs libpagemaker-0.0)
+
+      - name: Verify generated P65 engine
+        run: |
+          test -s p65/dist/pmd2svg.js
+          test -s p65/dist/pmd2svg.wasm
 
       - name: Commit generated P65 engine
         shell: bash
