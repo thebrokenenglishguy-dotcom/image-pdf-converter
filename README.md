@@ -11,6 +11,7 @@ A browser-based converter for JPG, PNG, WebP and HEIC/HEIF images.
 - Quality control and compression
 - Drag-and-drop upload
 - Client-side processing
+- Experimental Adobe PageMaker P65 input
 
 ## Planned
 - PDF → JPG/PNG
