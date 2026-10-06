@@ -5,6 +5,7 @@ on:
   push:
     paths:
       - ".github/workflows/build-p65.yml"
+      - "README.md"
 
 permissions:
   contents: write
