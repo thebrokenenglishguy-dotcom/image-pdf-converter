@@ -1,0 +1,73 @@
+name: Build P65 converter
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/build-p65.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  build-p65:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y             autoconf automake libtool pkg-config             build-essential cmake wget xz-utils             libboost-all-dev zlib1g-dev
+
+      - name: Install Emscripten
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: latest
+          actions-cache-folder: emsdk-cache
+
+      - name: Build librevenge
+        shell: bash
+        run: |
+          set -e
+          wget -q https://sourceforge.net/projects/libwpd/files/librevenge/librevenge-0.0.5/librevenge-0.0.5.tar.xz/download -O librevenge.tar.xz
+          tar -xf librevenge.tar.xz
+          cd librevenge-0.0.5
+          emconfigure ./configure --disable-shared --enable-static --prefix="$GITHUB_WORKSPACE/p65/deps"
+          emmake make -j2
+          emmake make install
+
+      - name: Build libpagemaker and pmd2svg as WebAssembly
+        shell: bash
+        run: |
+          set -e
+          wget -q https://dev-www.libreoffice.org/src/libpagemaker/libpagemaker-0.0.4.tar.xz -O libpagemaker.tar.xz
+          tar -xf libpagemaker.tar.xz
+          cd libpagemaker-0.0.4
+
+          export PKG_CONFIG_PATH="$GITHUB_WORKSPACE/p65/deps/lib/pkgconfig"
+          export CXXFLAGS="-O3"
+          export LDFLAGS="-L$GITHUB_WORKSPACE/p65/deps/lib"
+
+          emconfigure ./configure --disable-shared --enable-static --prefix="$GITHUB_WORKSPACE/p65/deps"
+          emmake make -j2
+          emmake make install
+
+          cd "$GITHUB_WORKSPACE"
+          mkdir -p p65/dist
+
+          em++             -O3             -s WASM=1             -s MODULARIZE=1             -s EXPORT_ES6=1             -s ENVIRONMENT=web             -s ALLOW_MEMORY_GROWTH=1             -s EXPORTED_RUNTIME_METHODS='["FS"]'             -s FORCE_FILESYSTEM=1             -I"$GITHUB_WORKSPACE/p65/deps/include"             p65/deps/bin/pmd2svg             "$GITHUB_WORKSPACE/libpagemaker-0.0.4/src/.libs/libpagemaker.a"             "$GITHUB_WORKSPACE/p65/deps/lib/librevenge-0.0.a"             -o p65/dist/pmd2svg.js
+
+      - name: Commit generated P65 engine
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add p65/dist
+          if git diff --cached --quiet; then
+            echo "No P65 engine changes."
+          else
+            git commit -m "Build PageMaker P65 WebAssembly engine"
+            git push
+          fi
