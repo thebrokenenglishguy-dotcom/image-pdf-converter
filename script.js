@@ -1,15 +1,55 @@
 const fileInput=document.getElementById("fileInput"),dropZone=document.getElementById("dropZone"),editor=document.getElementById("editor"),fileList=document.getElementById("fileList"),fileCount=document.getElementById("fileCount"),clearBtn=document.getElementById("clearBtn"),format=document.getElementById("format"),pageSize=document.getElementById("pageSize"),widthInput=document.getElementById("width"),heightInput=document.getElementById("height"),quality=document.getElementById("quality"),qualityValue=document.getElementById("qualityValue"),keepRatio=document.getElementById("keepRatio"),convertBtn=document.getElementById("convertBtn"),progress=document.getElementById("progress"),progressBar=progress.querySelector("span"),status=document.getElementById("status");let files=[];
-function isHeic(file){return /\\.(heic|heif)$/i.test(file.name)||/image\\/(heic|heif)/i.test(file.type)}
-function isP65(file){return /\\.p65$/i.test(file.name)||/pagemaker/i.test(file.type)}
+function isHeic(file){return /\.(heic|heif)$/i.test(file.name)||/image\/(heic|heif)/i.test(file.type)}
+function isP65(file){return /\.p65$/i.test(file.name)||/pagemaker/i.test(file.type)}
 function formatBytes(n){if(n<1024)return n+" B";if(n<1048576)return(n/1024).toFixed(1)+" KB";return(n/1048576).toFixed(1)+" MB"}
-function addFiles(list){const incoming=Array.from(list).filter(f=>f.type.startsWith("image/")||/\.(jpe?g|png|webp|heic|heif)$/i.test(f.name));files=[...files,...incoming];render();if(!incoming.length)status.textContent="Please choose an image file (JPG, PNG, WebP or HEIC)."}
+function addFiles(list){const incoming=Array.from(list).filter(f=>f.type.startsWith("image/")||/\.(jpe?g|png|webp|heic|heif|p65)$/i.test(f.name));files=[...files,...incoming];render();if(!incoming.length)status.textContent="Please choose an image file or a P65 PageMaker file."}
 function render(){fileList.innerHTML="";files.forEach((file,i)=>{const item=document.createElement("div");item.className="file-item";const img=document.createElement("img");img.className="thumb";img.alt="";if(!isHeic(file)&&!isP65(file))img.src=URL.createObjectURL(file);else img.src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44'%3E%3Crect width='44' height='44' rx='8' fill='%23eef1f6'/%3E%3Ctext x='22' y='27' text-anchor='middle' font-family='Arial' font-size='11' fill='%23687585'%3EHEIC%3C/text%3E%3C/svg%3E";const name=document.createElement("span");name.className="file-name";name.textContent=file.name;const size=document.createElement("span");size.className="file-size";size.textContent=formatBytes(file.size);const remove=document.createElement("button");remove.className="remove";remove.textContent="×";remove.onclick=()=>{files.splice(i,1);render()};item.append(img,name,size,remove);fileList.appendChild(item)});fileCount.textContent=files.length+" file"+(files.length===1?"":"s");editor.classList.toggle("hidden",files.length===0)}
 fileInput.onchange=e=>addFiles(e.target.files);["dragenter","dragover"].forEach(ev=>dropZone.addEventListener(ev,e=>{e.preventDefault();dropZone.classList.add("drag")}));["dragleave","drop"].forEach(ev=>dropZone.addEventListener(ev,e=>{e.preventDefault();dropZone.classList.remove("drag")}));dropZone.addEventListener("drop",e=>addFiles(e.dataTransfer.files));dropZone.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();fileInput.click()}});clearBtn.onclick=()=>{files=[];fileInput.value="";render();status.textContent=""};quality.oninput=()=>qualityValue.textContent=quality.value+"%";format.onchange=()=>pageSize.disabled=format.value!=="pdf";
 function loadImage(file){return new Promise(async(resolve,reject)=>{try{let blob=file;if(isHeic(file)){if(typeof heic2any!=="function")throw new Error("HEIC converter library did not load.");blob=await heic2any({blob:file,toType:"image/jpeg",quality:.95});if(Array.isArray(blob))blob=blob[0]}const url=URL.createObjectURL(blob),img=new Image();img.onload=()=>{URL.revokeObjectURL(url);resolve(img)};img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error("Could not read "+file.name))};img.src=url}catch(e){reject(e)}})}
 function resizedCanvas(img){let w=img.naturalWidth||img.width,h=img.naturalHeight||img.height,tw=parseInt(widthInput.value,10),th=parseInt(heightInput.value,10);if(tw>0||th>0){if(keepRatio.checked){if(tw>0){w=tw;h=Math.max(1,Math.round(img.height/img.width*w))}else{h=th;w=Math.max(1,Math.round(img.width/img.height*h))}}else{w=tw>0?tw:w;h=th>0?th:h}}const c=document.createElement("canvas");c.width=w;c.height=h;const ctx=c.getContext("2d");ctx.fillStyle="#fff";ctx.fillRect(0,0,w,h);ctx.drawImage(img,0,0,w,h);return c}
 function canvasBlob(canvas,type,q){return new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error("Could not create output.")),type,q))}function safeName(n){return n.replace(/\.[^.]+$/,"").replace(/[^a-z0-9_-]+/gi,"-")||"converted"}function download(blob,name){const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000)}
 async function convertP65(file){
-  throw new Error("P65 engine is not built yet. Run the GitHub Action 'Build P65 converter' once, then reload this page.");
+  status.textContent="Opening PageMaker file…";
+  const factory=(await import("./p65/dist/pmd2svg.js")).default;
+  let output="",errors="";
+  const Module=await factory({print:(s)=>{output+=s+"\\n"},printErr:(s)=>{errors+=s+"\\n"}});
+  const data=new Uint8Array(await file.arrayBuffer());
+  Module.FS.writeFile("/input.p65",data);
+  try{Module.callMain(["pmd2svg","/input.p65"]);}catch(e){if(!output.trim())throw new Error(errors||e.message||"P65 conversion failed.");}
+  const doc=new DOMParser().parseFromString(output,"text/html");
+  const svgs=Array.from(doc.querySelectorAll("svg"));
+  if(!svgs.length)throw new Error(errors||"The PageMaker engine could not render this P65 file.");
+  const canvases=[];
+  for(const svg of svgs){
+    const svgText=new XMLSerializer().serializeToString(svg);
+    const blob=new Blob([svgText],{type:"image/svg+xml;charset=utf-8"});
+    const url=URL.createObjectURL(blob);
+    const img=await new Promise((resolve,reject)=>{const i=new Image();i.onload=()=>{URL.revokeObjectURL(url);resolve(i)};i.onerror=()=>{URL.revokeObjectURL(url);reject(new Error("A PageMaker page could not be rendered."))};i.src=url});
+    const canvas=document.createElement("canvas");
+    canvas.width=Math.max(1,img.naturalWidth||img.width||1600);
+    canvas.height=Math.max(1,img.naturalHeight||img.height||2200);
+    canvas.getContext("2d").drawImage(img,0,0,canvas.width,canvas.height);
+    canvases.push(canvas);
+  }
+  if(format.value==="pdf"){
+    const {jsPDF}=window.jspdf;let pdf=null;
+    canvases.forEach((canvas,i)=>{
+      const ratio=canvas.height/canvas.width,wmm=210,hmm=Math.max(1,210*ratio);
+      if(i===0)pdf=new jsPDF({orientation:"portrait",unit:"mm",format:[wmm,hmm]});
+      else pdf.addPage([wmm,hmm],"portrait");
+      pdf.addImage(canvas.toDataURL("image/jpeg",Number(quality.value)/100),"JPEG",0,0,wmm,hmm,undefined,"FAST");
+      progressBar.style.width=((i+1)/canvases.length*100)+"%";
+    });
+    download(pdf.output("blob"),safeName(file.name)+".pdf");
+  }else{
+    for(let i=0;i<canvases.length;i++){
+      const mime={jpeg:"image/jpeg",png:"image/png",webp:"image/webp"}[format.value]||"image/png";
+      const ext=format.value==="jpeg"?"jpg":format.value;
+      const blob=await canvasBlob(canvases[i],mime,format.value==="png"?undefined:Number(quality.value)/100);
+      download(blob,safeName(file.name)+"-page-"+(i+1)+"."+ext);
+      progressBar.style.width=((i+1)/canvases.length*100)+"%";
+    }
+  }
 }
 async function makePdf(){const {jsPDF}=window.jspdf;const sizes={a4:[210,297],a5:[148,210],letter:[216,279]};let pdf=null;for(let i=0;i<files.length;i++){status.textContent="Converting "+(i+1)+" of "+files.length+"...";const img=await loadImage(files[i]),canvas=resizedCanvas(img);let wmm,hmm;if(pageSize.value==="original"){wmm=210;hmm=Math.max(1,210*(canvas.height/canvas.width))}else{[wmm,hmm]=sizes[pageSize.value];if(canvas.width>canvas.height)[wmm,hmm]=[hmm,wmm]}if(!pdf)pdf=new jsPDF({orientation:wmm>hmm?"landscape":"portrait",unit:"mm",format:[wmm,hmm]});else pdf.addPage([wmm,hmm],wmm>hmm?"landscape":"portrait");pdf.addImage(canvas.toDataURL("image/jpeg",Number(quality.value)/100),"JPEG",0,0,wmm,hmm,undefined,"FAST");progressBar.style.width=((i+1)/files.length*100)+"%"}download(pdf.output("blob"),"converted-images.pdf")}
 async function makeImages(){const mime={jpeg:"image/jpeg",png:"image/png",webp:"image/webp"}[format.value],ext=format.value==="jpeg"?"jpg":format.value;for(let i=0;i<files.length;i++){status.textContent="Converting "+(i+1)+" of "+files.length+"...";const img=await loadImage(files[i]),canvas=resizedCanvas(img),blob=await canvasBlob(canvas,mime,format.value==="png"?undefined:Number(quality.value)/100);download(blob,safeName(files[i].name)+"."+ext);progressBar.style.width=((i+1)/files.length*100)+"%"}}
