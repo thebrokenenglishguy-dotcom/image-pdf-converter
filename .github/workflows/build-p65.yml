@@ -31,9 +31,9 @@ jobs:
         shell: bash
         run: |
           set -e
-          wget -q https://sourceforge.net/projects/libwpd/files/librevenge/librevenge-0.0.5/librevenge-0.0.5.tar.xz/download -O librevenge.tar.xz
+          wget -q https://sourceforge.net/projects/libwpd/files/librevenge/librevenge/librevenge-0.0.6/librevenge-0.0.6.tar.xz/download -O librevenge.tar.xz
           tar -xf librevenge.tar.xz
-          cd librevenge-0.0.5
+          cd librevenge-0.0.6
           emconfigure ./configure --disable-shared --enable-static --prefix="$GITHUB_WORKSPACE/p65/deps"
           emmake make -j2
           emmake make install
@@ -57,7 +57,7 @@ jobs:
           cd "$GITHUB_WORKSPACE"
           mkdir -p p65/dist
 
-          em++             -O3             -s WASM=1             -s MODULARIZE=1             -s EXPORT_ES6=1             -s ENVIRONMENT=web             -s ALLOW_MEMORY_GROWTH=1             -s EXPORTED_RUNTIME_METHODS='["FS"]'             -s FORCE_FILESYSTEM=1             -I"$GITHUB_WORKSPACE/p65/deps/include"             p65/deps/bin/pmd2svg             "$GITHUB_WORKSPACE/libpagemaker-0.0.4/src/.libs/libpagemaker.a"             "$GITHUB_WORKSPACE/p65/deps/lib/librevenge-0.0.a"             -o p65/dist/pmd2svg.js
+          em++ -O3 -s WASM=1 -s MODULARIZE=1 -s EXPORT_ES6=1 -s ENVIRONMENT=web -s ALLOW_MEMORY_GROWTH=1 -s FORCE_FILESYSTEM=1 -s NO_EXIT_RUNTIME=1 -s EXPORTED_RUNTIME_METHODS='["FS","callMain"]' -I"$GITHUB_WORKSPACE/p65/deps/include" src/conv/svg/pmd2svg.cpp -o "$GITHUB_WORKSPACE/p65/dist/pmd2svg.js" $(pkg-config --static --cflags --libs libpagemaker-0.0)
 
       - name: Commit generated P65 engine
         shell: bash
