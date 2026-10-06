@@ -19,7 +19,7 @@ jobs:
       - name: Install build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y             autoconf automake libtool pkg-config             build-essential cmake wget xz-utils             libboost-all-dev zlib1g-dev
+          sudo apt-get install -y autoconf automake libtool pkg-config build-essential cmake wget xz-utils libboost-all-dev zlib1g-dev
 
       - name: Install Emscripten
         uses: mymindstorm/setup-emsdk@v14
@@ -31,8 +31,8 @@ jobs:
         shell: bash
         run: |
           set -e
-          wget -q https://sourceforge.net/projects/libwpd/files/librevenge/librevenge/librevenge-0.0.6/librevenge-0.0.6.tar.xz/download -O librevenge.tar.xz
-          tar -xf librevenge.tar.xz
+          wget -q https://dev-www.libreoffice.org/src/librevenge-0.0.6.tar.bz2 -O librevenge.tar.bz2
+          tar -xf librevenge.tar.bz2
           cd librevenge-0.0.6
           emconfigure ./configure --disable-shared --enable-static --prefix="$GITHUB_WORKSPACE/p65/deps"
           emmake make -j2
