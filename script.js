@@ -16,8 +16,8 @@ async function convertP65(file){
   const data=new Uint8Array(await file.arrayBuffer());
   Module.FS.writeFile("/input.p65",data);
   try{Module.callMain(["pmd2svg","/input.p65"]);}catch(e){if(!output.trim())throw new Error(errors||e.message||"P65 conversion failed.");}
-  const doc=new DOMParser().parseFromString(output,"text/html");
-  const svgs=Array.from(doc.querySelectorAll("svg"));
+  const doc=new DOMParser().parseFromString(output,"application/xhtml+xml");
+  const svgs=Array.from(doc.getElementsByTagNameNS("http://www.w3.org/2000/svg","svg"));
   if(!svgs.length)throw new Error(errors||"The PageMaker engine could not render this P65 file.");
   const canvases=[];
   for(const svg of svgs){
