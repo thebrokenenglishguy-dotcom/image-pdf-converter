@@ -35,6 +35,8 @@ jobs:
           wget -q https://dev-www.libreoffice.org/src/librevenge-0.0.6.tar.bz2 -O librevenge.tar.bz2
           tar -xf librevenge.tar.bz2
           cd librevenge-0.0.6
+          export CPPFLAGS="-I/usr/include"
+          export CXXFLAGS="-O3 -I/usr/include"
           emconfigure ./configure --disable-shared --enable-static --prefix="$GITHUB_WORKSPACE/p65/deps"
           emmake make -j2
           emmake make install
