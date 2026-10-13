@@ -76,6 +76,19 @@
             <label for="quality">Quality: <span id="qualityValue">90%</span></label>
             <input id="quality" type="range" min="10" max="100" value="90" />
           </div>
+          <div class="control-group">
+            <label for="sizeMode">Image handling</label>
+            <select id="sizeMode">
+              <option value="original">Preserve original dimensions</option>
+              <option value="target">Target file size (KB)</option>
+              <option value="resize">Resize using width/height</option>
+            </select>
+          </div>
+          <div class="control-group hidden" id="targetSizeGroup">
+            <label for="targetKB">Target size (KB)</label>
+            <input id="targetKB" type="number" min="5" max="20000" value="100" />
+          </div>
+          <p class="size-note">Original mode avoids resizing. Exact target size may require quality reduction and cannot guarantee identical quality.</p>
         </div>
 
         <div class="options-row">
@@ -100,6 +113,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@3.0.1/dist/jspdf.umd.min.js"></script>
-  <script src="script.js?v=20261007-p65"></script>
+  <script src="script.js?v=20261013-sizequality"></script>
 </body>
 </html>
