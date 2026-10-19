@@ -20,6 +20,28 @@
       <p class="subtitle">JPG, PNG, WebP and HEIC — convert, resize and compress without uploading your files.</p>
     </section>
 
+    <section class="card pdf-image-card">
+      <div class="section-title">
+        <div><h2>PDF to images</h2><p>Turn every PDF page into a PNG or JPG image.</p></div>
+      </div>
+      <div class="drop-zone" id="pdfDropZone">
+        <div class="upload-icon">▧</div>
+        <h2>Choose a PDF</h2>
+        <p>Your document stays in your browser.</p>
+        <label class="button primary" for="pdfInput">Choose PDF</label>
+        <input id="pdfInput" type="file" accept="application/pdf,.pdf" hidden />
+        <small id="pdfFileLabel">PDF · multi-page documents supported</small>
+      </div>
+      <div class="controls pdf-controls">
+        <div class="control-group"><label for="pdfImageFormat">Image format</label><select id="pdfImageFormat"><option value="image/png">PNG — best for text</option><option value="image/jpeg">JPG — smaller files</option></select></div>
+        <div class="control-group"><label for="pdfScale">Image quality / resolution</label><select id="pdfScale"><option value="1">Standard (72 DPI)</option><option value="1.5" selected>High (108 DPI)</option><option value="2">Very high (144 DPI)</option><option value="3">Maximum (216 DPI)</option></select></div>
+        <div class="control-group"><label for="pdfPages">Pages to convert</label><select id="pdfPages"><option value="all">All pages</option><option value="current">First page only</option></select></div>
+      </div>
+      <button id="pdfConvertBtn" class="button primary convert" disabled>Convert PDF to images</button>
+      <div id="pdfProgress" class="progress hidden"><span></span></div>
+      <p id="pdfStatus" class="status" aria-live="polite"></p>
+    </section>
+
     <section class="card">
       <div id="dropZone" class="drop-zone" tabindex="0">
         <div class="upload-icon">↑</div>
@@ -113,6 +135,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@3.0.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
   <script src="script.js?v=20261013-pagesize"></script>
 </body>
 </html>
