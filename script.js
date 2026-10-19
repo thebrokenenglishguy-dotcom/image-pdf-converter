@@ -70,3 +70,45 @@ async function convertP65(file){
 async function makePdf(){const {jsPDF}=window.jspdf;const sizes={a4:[210,297],a5:[148,210],letter:[216,279]};let pdf=null;for(let i=0;i<files.length;i++){status.textContent="Converting "+(i+1)+" of "+files.length+"...";const img=await loadImage(files[i]),canvas=resizedCanvas(img);let wmm,hmm;if(pageSize.value==="original"){wmm=210;hmm=Math.max(1,210*(canvas.height/canvas.width))}else{[wmm,hmm]=sizes[pageSize.value];if(canvas.width>canvas.height)[wmm,hmm]=[hmm,wmm]}if(!pdf)pdf=new jsPDF({orientation:wmm>hmm?"landscape":"portrait",unit:"mm",format:[wmm,hmm]});else pdf.addPage([wmm,hmm],wmm>hmm?"landscape":"portrait");pdf.addImage(canvas.toDataURL("image/jpeg",Number(quality.value)/100),"JPEG",0,0,wmm,hmm,undefined,"FAST");progressBar.style.width=((i+1)/files.length*100)+"%"}download(pdf.output("blob"),"converted-images.pdf")}
 async function makeImages(){const mime={jpeg:"image/jpeg",png:"image/png",webp:"image/webp"}[format.value],ext=format.value==="jpeg"?"jpg":format.value;for(let i=0;i<files.length;i++){status.textContent="Converting "+(i+1)+" of "+files.length+"...";const img=await loadImage(files[i]),canvas=resizedCanvas(img),blob=await encodeForTarget(canvas,mime,files[i]);download(blob,safeName(files[i].name)+"."+ext);progressBar.style.width=((i+1)/files.length*100)+"%"}}
 convertBtn.onclick=async()=>{if(!files.length)return;if(sizeMode.value==="target"&&format.value==="pdf"){status.textContent="Target KB mode is for JPG/WebP images. Select JPG or WebP, or use PDF mode without a target size.";return;}convertBtn.disabled=true;progress.classList.remove("hidden");progressBar.style.width="0%";try{if(files.some(isP65)){if(files.length!==1||!isP65(files[0]))throw new Error("For P65, select one .p65 file at a time.");await convertP65(files[0]);}else if(format.value==="pdf")await makePdf();else await makeImages();status.textContent="Done — your download is ready."}catch(e){console.error(e);status.textContent="Conversion failed: "+e.message}finally{convertBtn.disabled=false}};sizeMode.onchange();format.onchange();
+
+/* PDF to image conversion (runs locally in the browser). */
+(()=>{
+ const input=document.getElementById("pdfInput"),button=document.getElementById("pdfConvertBtn"),fmt=document.getElementById("pdfImageFormat"),scaleSelect=document.getElementById("pdfScale"),pagesSelect=document.getElementById("pdfPages"),label=document.getElementById("pdfFileLabel"),msg=document.getElementById("pdfStatus"),bar=document.querySelector("#pdfProgress span"),progress=document.getElementById("pdfProgress"),drop=document.getElementById("pdfDropZone");
+ if(!input||!button)return;
+ let chosenPdf=null;
+ if(window.pdfjsLib)pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js";
+ function pdfMessage(t){msg.textContent=t}
+ input.addEventListener("change",()=>{chosenPdf=input.files&&input.files[0]||null;button.disabled=!chosenPdf;label.textContent=chosenPdf?chosenPdf.name+" · "+(chosenPdf.size/1024/1024).toFixed(2)+" MB":"PDF · multi-page documents supported";pdfMessage(chosenPdf?"Ready to convert.": "");});
+ ["dragenter","dragover"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add("drag")}));
+ ["dragleave","drop"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove("drag")}));
+ drop.addEventListener("drop",e=>{const f=e.dataTransfer.files&&Array.from(e.dataTransfer.files).find(x=>/\.pdf$/i.test(x.name)||x.type==="application/pdf");if(f){chosenPdf=f;button.disabled=false;label.textContent=f.name+" · "+(f.size/1024/1024).toFixed(2)+" MB";pdfMessage("PDF selected. Ready to convert.")}else pdfMessage("Please choose a PDF file.")});
+ button.addEventListener("click",async()=>{
+  if(!chosenPdf)return;
+  if(!window.pdfjsLib){pdfMessage("PDF engine did not load. Check your internet connection and refresh.");return}
+  button.disabled=true;progress.classList.remove("hidden");bar.style.width="0%";
+  let doc;
+  try{
+   pdfMessage("Opening PDF…");
+   doc=await pdfjsLib.getDocument({data:new Uint8Array(await chosenPdf.arrayBuffer())}).promise;
+   const total=pagesSelect.value==="current"?1:doc.numPages;
+   if(total>100){pdfMessage("This PDF has "+total+" pages. For safety, convert documents in smaller parts (100 pages or fewer).");return}
+   const mime=fmt.value,ext=mime==="image/jpeg"?"jpg":"png",zip=new JSZip();
+   for(let n=1;n<=total;n++){
+    pdfMessage("Rendering page "+n+" of "+total+"…");
+    const page=await doc.getPage(n),viewport=page.getViewport({scale:Number(scaleSelect.value)});
+    const canvas=document.createElement("canvas"),ctx=canvas.getContext("2d");
+    canvas.width=Math.ceil(viewport.width);canvas.height=Math.ceil(viewport.height);
+    await page.render({canvasContext:ctx,viewport}).promise;
+    const blob=await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error("Could not encode page "+n)),mime,mime==="image/jpeg"?0.94:undefined));
+    zip.file("page-"+String(n).padStart(3,"0")+"."+ext,blob);
+    page.cleanup();canvas.width=0;canvas.height=0;bar.style.width=Math.round(n/total*100)+"%";
+   }
+   pdfMessage("Packing images into one ZIP file…");
+   const zipped=await zip.generateAsync({type:"blob"},meta=>{bar.style.width=Math.round(meta.percent)+"%"});
+   const url=URL.createObjectURL(zipped),a=document.createElement("a");
+   a.href=url;a.download=(chosenPdf.name.replace(/\.pdf$/i,"")||"pdf-pages")+"-images.zip";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),5000);
+   pdfMessage("Done! "+total+" page"+(total===1?"":"s")+" saved as "+ext.toUpperCase()+" images inside a ZIP file.");
+  }catch(err){console.error(err);pdfMessage("Conversion failed: "+(err&&err.message||"Unable to read this PDF."))}
+  finally{button.disabled=!chosenPdf}
+ });
+})();
