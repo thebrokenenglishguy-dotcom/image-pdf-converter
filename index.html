@@ -111,12 +111,12 @@
             <label for="sizeMode">Image handling</label>
             <select id="sizeMode">
               <option value="original">Preserve original dimensions</option>
-              <option value="target">Maximum file size (KB)</option>
+              <option value="target">Aim for target file size (KB)</option>
               <option value="resize">Resize using width/height</option>
             </select>
           </div>
           <div class="control-group hidden" id="targetSizeGroup">
-            <label for="targetKB">Maximum file size (KB)</label>
+            <label for="targetKB">Aim for target file size (KB)</label>
             <input id="targetKB" type="number" min="5" max="20000" value="100" />
           </div>
           <p class="size-note">Choose px for digital dimensions or cm for physical print size. Centimetres are converted to pixels using the selected DPI. Original mode avoids resizing; target file size is an estimate, not a guarantee.</p>
