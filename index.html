@@ -128,7 +128,8 @@
 
         <button id="convertBtn" class="button primary convert">Convert & Download</button>
         <div id="progress" class="progress hidden"><span></span></div>
-        <p id="status" class="status"></p>
+        <p id="status" class="status" aria-live="polite"></p>
+        <p id="downloadFallback" class="download-fallback hidden" aria-live="polite"></p>
       </div>
     </section>
 
@@ -145,6 +146,6 @@
   <script src="https://cdn.jsdelivr.net/npm/jspdf@3.0.1/dist/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-  <script src="script.js?v=20261020-download-paste"></script>
+  <script src="script.js?v=20261020-download-recovery"></script>
 </body>
 </html>
