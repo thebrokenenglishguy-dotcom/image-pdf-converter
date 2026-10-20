@@ -118,7 +118,7 @@
             <label for="targetKB">Target size (KB)</label>
             <input id="targetKB" type="number" min="5" max="20000" value="100" />
           </div>
-          <p class="size-note">Original mode avoids resizing. Exact target size may require quality reduction and cannot guarantee identical quality.</p>
+          <p class="size-note">Choose px for digital dimensions or cm for physical print size. Centimetres are converted to pixels using the selected DPI. Original mode avoids resizing; target file size is an estimate, not a guarantee.</p>
         </div>
 
         <div class="options-row">
@@ -145,6 +145,6 @@
   <script src="https://cdn.jsdelivr.net/npm/jspdf@3.0.1/dist/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-  <script src="script.js?v=20261020-perfilekb"></script>
+  <script src="script.js?v=20261020-cm-units"></script>
 </body>
 </html>
