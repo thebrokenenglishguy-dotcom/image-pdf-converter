@@ -27,3 +27,5 @@
 .inline-preview-viewport.is-zoomed{cursor:grab}.inline-preview-viewport.is-dragging{cursor:grabbing;user-select:none}.inline-preview-viewport.is-dragging .inline-preview-image{pointer-events:none}
 
 .inline-preview-viewport{overflow-x:scroll!important;overflow-y:scroll!important;touch-action:none;overscroll-behavior:contain}.inline-preview-viewport.is-zoomed .inline-preview-image{max-width:none!important;max-height:none!important}
+
+.inline-preview-viewport{display:block!important;overflow:auto!important;position:relative;max-width:100%;}.inline-preview-viewport .inline-preview-image{display:block!important;flex:none!important;margin:0;max-width:none!important;max-height:none!important;user-select:none;-webkit-user-drag:none}.inline-preview-viewport.is-zoomed{cursor:grab}.inline-preview-viewport.is-dragging{cursor:grabbing!important}
