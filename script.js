@@ -49,8 +49,8 @@ async function encodeForTarget(canvas,mime,originalFile,targetKBOverride){
     if(blob.size<=target){best=blob;low=q;}else high=q;
   }
   if(!best){best=await canvasBlob(canvas,mime,0.1);}
-  if(best.size>target)status.textContent="Could not reach "+targetKB.value+" KB without more quality loss. Best result: "+formatBytes(best.size)+".";
-  else status.textContent="Target reached: "+formatBytes(best.size)+".";
+  if(best.size>target)status.textContent="The image could not be reduced below "+(target/1024)+" KB at usable quality. Best result: "+formatBytes(best.size)+".";
+  else status.textContent="Converted successfully: "+formatBytes(best.size)+". The "+(target/1024)+" KB setting is a maximum, not an exact size; the output does not need to fill the limit.";
   return best;
 }function safeName(n){return n.replace(/\.[^.]+$/,"").replace(/[^a-z0-9_-]+/gi,"-")||"converted"}
 function download(blob,name){const url=URL.createObjectURL(blob);const fallback=document.getElementById("downloadFallback");if(fallback){fallback.innerHTML="";const link=document.createElement("a");link.href=url;link.download=name;link.textContent="Download "+name;link.className="button primary";link.style.marginTop="8px";fallback.appendChild(link);fallback.classList.remove("hidden");}const a=document.createElement("a");a.href=url;a.download=name;a.style.position="absolute";a.style.left="-9999px";a.rel="noopener";document.body.appendChild(a);try{a.click()}catch(err){console.warn("Automatic download was blocked; use the visible download link.",err)}a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000)}
