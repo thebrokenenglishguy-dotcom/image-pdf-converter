@@ -11,3 +11,5 @@
 .tool-tab.active{background:#fff;color:#244bd4;box-shadow:0 2px 8px rgba(25,38,70,.1)}
 #pdfToolPanel .drop-zone,#imageToolPanel .drop-zone{padding:36px 18px}
 #imageToolPanel .editor{padding-top:22px}
+
+.image-preview-overlay{position:fixed;inset:0;z-index:9999;background:rgba(12,18,32,.78);display:flex;align-items:center;justify-content:center;padding:20px}.image-preview-dialog{position:relative;background:#fff;border-radius:16px;padding:20px;max-width:min(900px,96vw);max-height:92vh;display:flex;flex-direction:column;align-items:center;gap:12px;box-shadow:0 20px 70px rgba(0,0,0,.3)}.image-preview-close{align-self:flex-end;border:0;border-radius:8px;background:#eef1f6;color:#172033;font-size:28px;line-height:1;padding:4px 12px;cursor:pointer}.image-preview-title{max-width:80vw;overflow-wrap:anywhere;margin:0;font-weight:700}.image-preview-full{display:block;max-width:85vw;max-height:68vh;object-fit:contain}.image-preview-hint{margin:0;color:#687386;font-size:13px;text-align:center}.file-name:hover{text-decoration:underline;color:#315efb}
