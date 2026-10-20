@@ -41,18 +41,38 @@ function resizedCanvas(img){let w=img.naturalWidth||img.width,h=img.naturalHeigh
 function canvasBlob(canvas,type,q){return new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error("Could not create output.")),type,q))}
 async function encodeForTarget(canvas,mime,originalFile,targetKBOverride){
   if(sizeMode.value!=="target")return canvasBlob(canvas,mime,mime==="image/png"?undefined:Number(quality.value)/100);
-  if(mime==="image/png"){status.textContent="PNG uses lossless compression, so a target KB cannot be controlled reliably. Choose JPG or WebP for size targeting.";return canvasBlob(canvas,mime)}
+  if(mime==="image/png"){status.textContent="PNG uses lossless compression, so a target size cannot be reliably controlled. Choose JPG or WebP.";return canvasBlob(canvas,mime)}
   const target=Math.max(5,Number(targetKBOverride)||Number(targetKB.value)||100)*1024;
-  let low=0.1,high=1,best=null;
-  for(let i=0;i<9;i++){
-    const q=(low+high)/2,blob=await canvasBlob(canvas,mime,q);
-    if(blob.size<=target){best=blob;low=q;}else high=q;
+  let workCanvas=canvas,best=null,scaleFactor=1;
+  // Try to approach the requested size. If quality 100% is still far below
+  // the target, modestly upscale dimensions; this increases bytes, not detail.
+  for(let resizeAttempt=0;resizeAttempt<4;resizeAttempt++){
+    const maxQuality=await canvasBlob(workCanvas,mime,1);
+    if(maxQuality.size>=target*0.92){best=maxQuality;break;}
+    if(resizeAttempt===3) {best=maxQuality;break;}
+    const ratio=Math.sqrt(target/maxQuality.size)*0.94;
+    const nextFactor=Math.min(1.65,Math.max(1.08,ratio));
+    const nextW=Math.round(workCanvas.width*nextFactor),nextH=Math.round(workCanvas.height*nextFactor);
+    if(nextW>12000||nextH>12000||nextW*nextH>40000000){best=maxQuality;break;}
+    const next=document.createElement("canvas");next.width=nextW;next.height=nextH;
+    const ctx=next.getContext("2d");ctx.drawImage(workCanvas,0,0,nextW,nextH);
+    workCanvas=next;scaleFactor*=nextFactor;
   }
-  if(!best){best=await canvasBlob(canvas,mime,0.1);}
-  if(best.size>target)status.textContent="The image could not be reduced below "+(target/1024)+" KB at usable quality. Best result: "+formatBytes(best.size)+".";
-  else status.textContent="Converted successfully: "+formatBytes(best.size)+". The "+(target/1024)+" KB setting is a maximum, not an exact size; the output does not need to fill the limit.";
-  return best;
-}function safeName(n){return n.replace(/\.[^.]+$/,"").replace(/[^a-z0-9_-]+/gi,"-")||"converted"}
+  // Find the highest quality that stays near/below target for chosen dimensions.
+  let low=0.1,high=1,under=null,closest=best;
+  for(let i=0;i<12;i++){
+    const q=(low+high)/2,blob=await canvasBlob(workCanvas,mime,q);
+    if(!closest||Math.abs(blob.size-target)<Math.abs(closest.size-target))closest=blob;
+    if(blob.size<=target){under=blob;low=q;}else high=q;
+  }
+  if(under&&Math.abs(under.size-target)<=Math.abs((closest||under).size-target))closest=under;
+  const actual=closest||await canvasBlob(workCanvas,mime,1);
+  const actualKB=(actual.size/1024).toFixed(1),targetKBValue=(target/1024).toFixed(0);
+  if(actual.size<target*0.85)status.textContent="Best achievable result: "+actualKB+" KB for a "+targetKBValue+" KB target. The image cannot reach the requested size without excessive enlargement.";
+  else status.textContent="Target-size attempt: "+actualKB+" KB (requested "+targetKBValue+" KB). "+(scaleFactor>1.01?"Dimensions were enlarged to approach the size; this does not add image detail. ":"")+"Actual size may vary by image.";
+  return actual;
+}
+function safeName(n){return n.replace(/\.[^.]+$/,"").replace(/[^a-z0-9_-]+/gi,"-")||"converted"}
 function download(blob,name){const url=URL.createObjectURL(blob);const fallback=document.getElementById("downloadFallback");if(fallback){fallback.innerHTML="";const link=document.createElement("a");link.href=url;link.download=name;link.textContent="Download "+name;link.className="button primary";link.style.marginTop="8px";fallback.appendChild(link);fallback.classList.remove("hidden");}const a=document.createElement("a");a.href=url;a.download=name;a.style.position="absolute";a.style.left="-9999px";a.rel="noopener";document.body.appendChild(a);try{a.click()}catch(err){console.warn("Automatic download was blocked; use the visible download link.",err)}a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000)}
 async function downloadFilesAsZip(items,zipName){if(!window.JSZip)throw new Error("Download packaging library did not load. Refresh the page and try again.");const zip=new JSZip();items.forEach(item=>zip.file(item.name,item.blob));const blob=await zip.generateAsync({type:"blob"});download(blob,zipName)}
 
