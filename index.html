@@ -85,13 +85,21 @@
           </div>
 
           <div class="control-group">
-            <label for="width">Width (px)</label>
-            <input id="width" type="number" min="1" placeholder="Original" />
+            <label for="dimensionUnit">Dimension unit</label>
+            <select id="dimensionUnit"><option value="px">Pixels (px)</option><option value="cm">Centimetres (cm)</option></select>
+          </div>
+          <div class="control-group hidden" id="dimensionDpiGroup">
+            <label for="dimensionDpi">Print resolution</label>
+            <select id="dimensionDpi"><option value="96">96 DPI — screen/basic</option><option value="150">150 DPI — standard print</option><option value="300" selected>300 DPI — high-quality print</option></select>
+          </div>
+          <div class="control-group">
+            <label for="width" id="widthLabel">Width (px)</label>
+            <input id="width" type="number" min="0.01" step="any" placeholder="Original" />
           </div>
 
           <div class="control-group">
-            <label for="height">Height (px)</label>
-            <input id="height" type="number" min="1" placeholder="Original" />
+            <label for="height" id="heightLabel">Height (px)</label>
+            <input id="height" type="number" min="0.01" step="any" placeholder="Original" />
           </div>
 
           <div class="control-group">
