@@ -20,7 +20,9 @@
       <p class="subtitle">JPG, PNG, WebP and HEIC — convert, resize and compress without uploading your files.</p>
     </section>
 
-    <section class="card pdf-image-card">
+    <section class="card combined-tools-card">
+      <div class="tool-tabs" role="tablist" aria-label="Conversion type"><button type="button" class="tool-tab active" id="pdfTab" role="tab" aria-selected="true">PDF to Images</button><button type="button" class="tool-tab" id="imageTab" role="tab" aria-selected="false">Images to PDF / Convert</button></div>
+      <div id="pdfToolPanel">
       <div class="section-title">
         <div><h2>PDF to images</h2><p>Turn every PDF page into a PNG or JPG image.</p></div>
       </div>
@@ -40,9 +42,7 @@
       <button id="pdfConvertBtn" class="button primary convert" disabled>Convert PDF to images</button>
       <div id="pdfProgress" class="progress hidden"><span></span></div>
       <p id="pdfStatus" class="status" aria-live="polite"></p>
-    </section>
-
-    <section class="card">
+      <div id="imageToolPanel" class="hidden">
       <div id="dropZone" class="drop-zone" tabindex="0">
         <div class="upload-icon">↑</div>
         <h2>Drop your files here</h2>
@@ -131,6 +131,7 @@
         <p id="status" class="status" aria-live="polite"></p>
         <p id="downloadFallback" class="download-fallback hidden" aria-live="polite"></p>
       </div>
+      </div>
     </section>
 
     <section class="features">
@@ -146,6 +147,6 @@
   <script src="https://cdn.jsdelivr.net/npm/jspdf@3.0.1/dist/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-  <script src="script.js?v=20261020-max-size-label"></script>
+  <script src="script.js?v=20261020-one-combined-box"></script>
 </body>
 </html>
