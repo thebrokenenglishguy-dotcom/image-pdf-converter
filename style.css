@@ -3,3 +3,11 @@
 
 /* Per-image target file-size controls */
 .per-file-target{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:#687386;flex-shrink:0}.per-file-target input{width:66px;min-width:0;border:1px solid #d8dee8;border-radius:7px;padding:7px 5px;font:inherit;color:#172033;background:#fff}.per-file-target.hidden{display:none!important}@media(max-width:680px){.file-item{flex-wrap:wrap}.file-name{flex:1 1 calc(100% - 130px)}.per-file-target input{width:72px}}
+
+/* One combined converter card with mode tabs */
+.combined-tools-card{padding:20px;border-radius:22px}
+.tool-tabs{display:flex;gap:8px;margin-bottom:18px;padding:5px;background:#f0f3fa;border-radius:12px}
+.tool-tab{flex:1;min-width:0;border:0;border-radius:9px;padding:12px 10px;background:transparent;color:#596579;font:inherit;font-size:14px;font-weight:750;cursor:pointer}
+.tool-tab.active{background:#fff;color:#244bd4;box-shadow:0 2px 8px rgba(25,38,70,.1)}
+#pdfToolPanel .drop-zone,#imageToolPanel .drop-zone{padding:36px 18px}
+#imageToolPanel .editor{padding-top:22px}
