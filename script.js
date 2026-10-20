@@ -7,14 +7,23 @@ function render(){fileList.innerHTML="";files.forEach((file,i)=>{const item=docu
 fileInput.onchange=e=>addFiles(e.target.files);
 // Desktop clipboard support: paste copied image data with Ctrl+V / Cmd+V.
 document.addEventListener("paste",e=>{const items=Array.from(e.clipboardData&&e.clipboardData.items||[]);const imageItems=items.filter(item=>item.kind==="file"&&item.type.startsWith("image/"));if(!imageItems.length)return;const pasted=imageItems.map((item,index)=>{const blob=item.getAsFile();if(!blob)return null;const ext=(blob.type.split("/")[1]||"png").replace("jpeg","jpg");return new File([blob],"pasted-image-"+Date.now()+"-"+(index+1)+"."+ext,{type:blob.type||"image/png",lastModified:Date.now()})}).filter(Boolean);if(pasted.length){e.preventDefault();addFiles(pasted);status.textContent=pasted.length===1?"Pasted image added. Choose Convert & Download when ready.":pasted.length+" pasted images added. Choose Convert & Download when ready.";}});["dragenter","dragover"].forEach(ev=>dropZone.addEventListener(ev,e=>{e.preventDefault();dropZone.classList.add("drag")}));["dragleave","drop"].forEach(ev=>dropZone.addEventListener(ev,e=>{e.preventDefault();dropZone.classList.remove("drag")}));dropZone.addEventListener("drop",e=>addFiles(e.dataTransfer.files));dropZone.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();fileInput.click()}});clearBtn.onclick=()=>{files=[];fileInput.value="";render();status.textContent=""};quality.oninput=()=>qualityValue.textContent=quality.value+"%";
-sizeMode.onchange=()=>{targetSizeGroup.classList.toggle("hidden",sizeMode.value!=="target");widthInput.disabled=false;heightInput.disabled=false;keepRatio.disabled=false;if(files.length)render();};
+sizeMode.onchange=()=>{
+  targetSizeGroup.classList.toggle("hidden",sizeMode.value!=="target");
+  widthInput.disabled=false;heightInput.disabled=false;keepRatio.disabled=false;
+  if(sizeMode.value==="target"&&format.value==="pdf"){
+    format.value="jpeg";
+    format.onchange();
+    status.textContent="Target file size works with JPG/WebP images, so output has been switched to JPG. Choose WebP under Convert to if preferred.";
+  }
+  if(files.length)render();
+};
 const pageSizeGroup=document.getElementById("pageSizeGroup");
 const targetSizeOption=Array.from(sizeMode.options).find(option=>option.value==="target");
 format.onchange=()=>{
   const isPdf=format.value==="pdf";
   pageSize.disabled=!isPdf;
   pageSizeGroup.classList.toggle("hidden",!isPdf);
-  if(targetSizeOption)targetSizeOption.disabled=isPdf;
+  if(targetSizeOption)targetSizeOption.disabled=false;
   if(isPdf&&sizeMode.value==="target"){
     sizeMode.value="original";
     sizeMode.onchange();
