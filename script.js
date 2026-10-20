@@ -29,7 +29,7 @@ async function encodeForTarget(canvas,mime,originalFile,targetKBOverride){
   else status.textContent="Target reached: "+formatBytes(best.size)+".";
   return best;
 }function safeName(n){return n.replace(/\.[^.]+$/,"").replace(/[^a-z0-9_-]+/gi,"-")||"converted"}
-function download(blob,name){const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=name;a.style.display="none";a.rel="noopener";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),10000)}
+function download(blob,name){const url=URL.createObjectURL(blob);const fallback=document.getElementById("downloadFallback");if(fallback){fallback.innerHTML="";const link=document.createElement("a");link.href=url;link.download=name;link.textContent="Download "+name;link.className="button primary";link.style.marginTop="8px";fallback.appendChild(link);fallback.classList.remove("hidden");}const a=document.createElement("a");a.href=url;a.download=name;a.style.position="absolute";a.style.left="-9999px";a.rel="noopener";document.body.appendChild(a);try{a.click()}catch(err){console.warn("Automatic download was blocked; use the visible download link.",err)}a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000)}
 async function downloadFilesAsZip(items,zipName){if(!window.JSZip)throw new Error("Download packaging library did not load. Refresh the page and try again.");const zip=new JSZip();items.forEach(item=>zip.file(item.name,item.blob));const blob=await zip.generateAsync({type:"blob"});download(blob,zipName)}
 
 async function convertP65(file){
