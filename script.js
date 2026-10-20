@@ -146,3 +146,6 @@ convertBtn.onclick=async()=>{if(!files.length)return;if(sizeMode.value==="target
   finally{button.disabled=!chosenPdf}
  });
 })();
+
+// Combined converter card: switch between PDF-to-images and image conversion in one box.
+(()=>{const pdfTab=document.getElementById("pdfTab"),imageTab=document.getElementById("imageTab"),pdfPanel=document.getElementById("pdfToolPanel"),imagePanel=document.getElementById("imageToolPanel");if(!pdfTab||!imageTab||!pdfPanel||!imagePanel)return;function setTool(which){const pdf=which==="pdf";pdfPanel.classList.toggle("hidden",!pdf);imagePanel.classList.toggle("hidden",pdf);pdfTab.classList.toggle("active",pdf);imageTab.classList.toggle("active",!pdf);pdfTab.setAttribute("aria-selected",String(pdf));imageTab.setAttribute("aria-selected",String(!pdf));}pdfTab.addEventListener("click",()=>setTool("pdf"));imageTab.addEventListener("click",()=>setTool("image"));setTool("pdf");})();
