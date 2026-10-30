@@ -35,8 +35,10 @@
    };
    await renderCurrent();
    while(!done&&pageCount<500){
-    const next=await rendition.next();
-    if(next===false){done=true;break}
+    const before=rendition.currentLocation()?.end?.cfi;
+    await rendition.next();
+    const after=rendition.currentLocation()?.end?.cfi;
+    if(!after||after===before){done=true;break}
     await renderCurrent();
    }
    if(pageCount>=500)throw new Error("This EPUB is too large to convert in one run (500-page safety limit).");
