@@ -21,7 +21,7 @@
     </section>
 
     <section class="card combined-tools-card">
-      <div class="tool-tabs" role="tablist" aria-label="Conversion type"><button type="button" class="tool-tab active" id="pdfTab" role="tab" aria-selected="true">PDF to Images</button><button type="button" class="tool-tab" id="imageTab" role="tab" aria-selected="false">Images to PDF / Convert</button></div>
+      <div class="tool-tabs" role="tablist" aria-label="Conversion type"><button type="button" class="tool-tab active" id="pdfTab" role="tab" aria-selected="true">PDF to Images</button><button type="button" class="tool-tab" id="imageTab" role="tab" aria-selected="false">Images to PDF / Convert</button><button type="button" class="tool-tab" id="ebookTab" role="tab" aria-selected="false">eBook Converter</button></div>
       <div id="pdfToolPanel">
       <div class="section-title">
         <div><h2>PDF to images</h2><p>Turn every PDF page into a PNG or JPG image.</p></div>
@@ -133,6 +133,30 @@
         <p id="downloadFallback" class="download-fallback hidden" aria-live="polite"></p>
       </div>
       </div>
+      <div id="ebookToolPanel" class="hidden">
+        <div class="section-title"><div><h2>eBook converter</h2><p>Convert EPUB books to PDF, or extract PDF text into an EPUB eBook.</p></div></div>
+        <div class="ebook-grid">
+          <div class="ebook-card">
+            <h3>EPUB to PDF</h3><p>Render an EPUB book into a downloadable PDF.</p>
+            <label class="button primary" for="epubInput">Choose EPUB</label>
+            <input id="epubInput" type="file" accept=".epub,application/epub+zip" hidden />
+            <small id="epubFileLabel">EPUB files only</small>
+            <button id="epubToPdfBtn" class="button primary convert" disabled>Convert EPUB to PDF</button>
+            <div id="epubProgress" class="progress hidden"><span></span></div>
+            <p id="epubStatus" class="status" aria-live="polite"></p>
+          </div>
+          <div class="ebook-card">
+            <h3>PDF to EPUB</h3><p>Extract selectable text from a PDF and package it as an EPUB eBook. Scanned pages need OCR and are not converted.</p>
+            <label class="button primary" for="pdfEpubInput">Choose PDF</label>
+            <input id="pdfEpubInput" type="file" accept=".pdf,application/pdf" hidden />
+            <small id="pdfEpubFileLabel">PDF files only</small>
+            <button id="pdfToEpubBtn" class="button primary convert" disabled>Convert PDF to EPUB</button>
+            <div id="pdfEpubProgress" class="progress hidden"><span></span></div>
+            <p id="pdfEpubStatus" class="status" aria-live="polite"></p>
+          </div>
+        </div>
+        <p class="ebook-note">Privacy: conversion runs in your browser. PDF-to-EPUB preserves extracted text and page order, not the exact original layout, fonts, images, or tables. Scanned PDFs require OCR first.</p>
+      </div>
     </section>
 
     <section class="features">
@@ -148,6 +172,9 @@
   <script src="https://cdn.jsdelivr.net/npm/jspdf@3.0.1/dist/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-  <script src="script.js?v=20261020-pointer-wheel-zoom"></script>
+  <script src="https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="script.js?v=20261030-ebook-tabs"></script>
+  <script src="ebook-converter.js?v=20261030"></script>
 </body>
 </html>
